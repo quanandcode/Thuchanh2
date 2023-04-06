@@ -1,3 +1,151 @@
-<div>
-    <h1>phi ham</h1>
+<form class="mt-4" action="/books/handle-form-action" method='POST'>
+    <div class="d-flex justify-content-between">
+        <h3>Danh sách bệnh nhân</h3>
+        <div class="trash-can">
+            <a href="/me/trash/books">
+                <i class="fa-solid fa-trash-can trash-icon"></i>
+            </a>
+            <div class="number-deleted text-center">
+                <span>{{countDeleted}}</span>
+            </div>
+        </div>
+
+    </div>
+
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th></th>
+                <th scope="col">#</th>
+                <th scope="col">Name
+                </th>
+                <th scope="col">Dob
+                </th>
+                <th scope="col">disease
+                </th>
+                <th scope="col">vaccinated
+
+                </th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each patients}}
+            <tr>
+                {{!-- checkbox of book --}}
+                <th>
+                    <input class="form-check-input" type="checkbox" name="bookIds[]" value="{{this._id}}"
+                        id="flexCheckDefault">
+
+                </th>
+                <th scope="row">{{sum @index 1}}</th>
+                <td>{{this.name}}</td>
+                <td>{{this.dob}}</td>
+                <td>{{this.disease}}</td>
+                {{!-- <td>{{this.vaccinated}}</td> --}}
+                {{#if this.vaccinated}}
+                <td>
+                    <input type="checkbox" checked id="vehicle2" name="vehicle2" value="Car">
+                </td>
+                {{else}}
+                <td>
+                    <input type="checkbox" id="vehicle2" name="vehicle2" value="Car">
+                </td>
+                {{/if}}
+                <td class="d-flex justify-content-end">
+                    <button type="button" class="btn btn-warning " style="color: white;">
+                        <a href="/patients/{{this._id}}/edit">
+                            Edit
+                        </a>
+                    </button>
+                    <button type="button" class="btn btn-danger" data-id="{{this._id}}" data-bs-toggle="modal"
+                        data-bs-target="#delete-book-modal">
+                        <a>
+                            Delete
+                        </a>
+                    </button>
+                </td>
+            </tr>
+            {{else}}
+            <tr>
+                <td colspan="7">
+                    <div class="text-center">
+                        Chưa có số bệnh nhân nào
+                        <a href="/patients/create">Thêm bệnh nhân</a>
+                    </div>
+                </td>
+            </tr>
+            {{/each
+            }}
+        </tbody>
+    </table>
+    <button class="btn btn-warning">
+        <a href="/patients/create">New Patient</a>
+    </button>
+</form>
+</form>
+
+{{!-- Modal of delete button --}}
+<div id="delete-book-modal" class="modal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Xoá Bệnh nhân Này?</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn chắc chắn muốn xoá bệnh nhân này chứ?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Huỷ bỏ</button>
+                <button type="button" id="button-delete-book" class="btn btn-danger">Xoá bỏ</button>
+            </div>
+        </div>
+    </div>
 </div>
+
+{{!-- Hidden form delete method --}}
+<form method="POST" id="form-hidden-delete"></form>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var bookId;
+        var btnDelete = document.getElementById('button-delete-book');
+        var formHidden = document.getElementById('form-hidden-delete');
+        var checkboxAllBooks = $('#check-all-books')
+        var checkboxBookItems = $('input[name="bookIds[]"]')
+        var btnSubmit = $('.btn-handler-form-action')
+        var selectAction = $('.select-actions')
+        var quantityChecked;
+        $('#delete-book-modal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget)
+            bookId = button.data('id')
+        })
+        btnDelete.onclick = function () {
+            formHidden.action = "/books/" + bookId + "?_method=DELETE"
+            formHidden.submit();
+        }
+
+        //Handler for the click 'chon tat ca'
+        checkboxAllBooks.change(function (event) {
+            isCheckedAll = checkboxAllBooks.prop('checked');
+            checkboxBookItems.prop('checked', isCheckedAll)
+            quantityChecked = $('input[name="bookIds[]"]:checked').length;
+            isDisabledBtnAction()
+        })
+        checkboxBookItems.change(function (event) {
+            quantityChecked = $('input[name="bookIds[]"]:checked').length;
+            checkboxAllBooks.prop('checked', checkboxBookItems.length === quantityChecked);
+            isDisabledBtnAction()
+        })
+        //display btn action disabled or active
+        var isDisabledBtnAction = () => {
+            if (quantityChecked > 0) {
+                btnSubmit.removeClass("disabled")
+            } else {
+                btnSubmit.addClass("disabled")
+            }
+        }
+
+
+    })
+</script>
